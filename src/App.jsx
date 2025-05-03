@@ -1,31 +1,3 @@
-// import React, { useRef } from 'react';
-// import { Container, Typography } from '@mui/material';
-// import PatientQuery from './PatientQuery';
-// import PatientForm from './PatientForm';
-
-// export default function App() {
-//   const queryRef = useRef();
-
-//   const handlePatientAdded = () => {
-//     console.log("Patient added, refreshing list.");
-//     if (queryRef.current) {
-//       queryRef.current.fetchPatients(); // Triggers refresh in PatientQuery
-//     }
-//   };
-
-//   return (
-//     <Container maxWidth="md" sx={{ mt: 4 }}>
-//       <Typography variant="h4" gutterBottom>
-//         Patient Management System
-//       </Typography>
-
-//       <PatientForm onPatientAdded={handlePatientAdded} />
-//       <PatientQuery ref={queryRef} />
-//     </Container>
-//   );
-// }
-
-
 import React, { useRef } from 'react';
 import { 
   Container, 

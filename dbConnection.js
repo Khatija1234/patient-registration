@@ -7,7 +7,6 @@ const channel = new BroadcastChannel("patient_db_sync");
 
 async function initializeDatabase(db) {
   try {
-    console.log("🔧 Initializing database schema...");
     await db.exec(`
       CREATE TABLE IF NOT EXISTS patients (
         id SERIAL PRIMARY KEY,
@@ -19,7 +18,6 @@ async function initializeDatabase(db) {
         registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log("✅ Schema initialized or already exists.");
   } catch (err) {
     console.error("❌ Database initialization failed:", err);
     throw err;
@@ -28,12 +26,10 @@ async function initializeDatabase(db) {
 
 async function getDatabase() {
   if (dbInstance) {
-    console.log("🔄 Reusing existing DB instance");
     return dbInstance;
   }
 
   try {
-    console.log("🚀 Attempting to connect to PGlite DB:", DB_NAME);
     dbInstance = new PGlite({
       idbName: DB_NAME,
       idbVersion: DB_VERSION,
@@ -44,8 +40,6 @@ async function getDatabase() {
     
 
     await dbInstance.ready;
-    console.log("✅ DB connected successfully");
-
     await initializeDatabase(dbInstance);
     return dbInstance;
 
@@ -56,7 +50,6 @@ async function getDatabase() {
     await new Promise((resolve) => {
       const req = indexedDB.deleteDatabase(DB_NAME);
       req.onsuccess = () => {
-        console.log("🗑️ Old DB deleted");
         resolve();
       };
       req.onerror = (e) => {
@@ -64,8 +57,6 @@ async function getDatabase() {
         resolve();
       };
     });
-
-    console.log("🔁 Retrying DB initialization...");
     dbInstance = new PGlite({
       idbName: DB_NAME,
       idbVersion: DB_VERSION,
@@ -73,7 +64,6 @@ async function getDatabase() {
     });
 
     await dbInstance.ready;
-    console.log("✅ DB reinitialized after recovery");
 
     await initializeDatabase(dbInstance);
     return dbInstance;
@@ -81,32 +71,24 @@ async function getDatabase() {
 }
 
 function notifyTabsOfUpdate() {
-  console.log("🔔 Broadcasting update to other tabs");
   channel.postMessage({ type: "db_update" });
 }
 
 function setupTabSync(callback) {
   const handler = (event) => {
-    console.log("📡 Sync event received:", event.data);
     if (event.data.type === "db_update") {
       callback();
     }
   };
   channel.addEventListener("message", handler);
   return () => {
-    console.log("🛑 Removing sync listener");
     channel.removeEventListener("message", handler);
   };
 }
 
 async function queryPatients(sql, params = []) {
   const db = await getDatabase();
-  console.log("📥 Executing SQL:", sql);
-  console.log("📦 With parameters:", params);
-
   const result = await db.query(sql, params);
-  console.log("📤 Query result:", result.rows || result);
-
   return result.rows || result;
 }
 
